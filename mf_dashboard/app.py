@@ -251,12 +251,25 @@ src_mode = st.sidebar.radio("Source mode", ["🌐 GitHub URL", "📁 Upload Exce
                              horizontal=True, label_visibility="collapsed", key="src_mode")
 
 if src_mode == "🌐 GitHub URL":
-    gh_url = st.sidebar.text_input(
-        "GitHub Raw URL",
-        value=st.session_state.get("gh_url_saved", ""),
-        placeholder="https://raw.githubusercontent.com/…/dashboard_data.xlsx",
-        label_visibility="collapsed",
-    )
+    import toml as _toml, pathlib as _pl
+_cfg_path = _pl.Path(__file__).parent / ".streamlit" / "config.toml"
+_default_url = ""
+try:
+    _default_url = _toml.load(_cfg_path).get("custom", {}).get("default_data_url", "")
+except Exception:
+    pass
+
+gh_url = st.sidebar.text_input(
+    "GitHub Raw URL",
+    value=st.session_state.get("gh_url_saved", _default_url),
+    placeholder="https://raw.githubusercontent.com/…/dashboard_data.xlsx",
+    label_visibility="collapsed",
+)
+```
+
+**Step 3** — Add `toml` to `requirements.txt`:
+```
+toml
     col_load, col_clear = st.sidebar.columns([3, 1])
     with col_load:
         load_clicked = st.button("🔄 Load / Refresh", use_container_width=True, key="load_gh_btn")
