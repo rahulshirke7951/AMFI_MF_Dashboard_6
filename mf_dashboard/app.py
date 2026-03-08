@@ -1,5 +1,6 @@
 import streamlit as st
 import os, sys, importlib.util, pandas as pd
+import toml as _toml, pathlib as _pl
 
 st.set_page_config(
     page_title="MF Intelligence",
@@ -209,6 +210,14 @@ hr { border-color: #E2E8F0 !important; }
 base = os.path.dirname(__file__)
 sys.path.insert(0, base)
 
+# ── Load default URL from config.toml (frozen GitHub link) ──────────────────
+_cfg_path    = _pl.Path(__file__).parent / ".streamlit" / "config.toml"
+_default_url = ""
+try:
+    _default_url = _toml.load(_cfg_path).get("custom", {}).get("default_data_url", "")
+except Exception:
+    pass
+
 
 def load_page(path):
     spec = importlib.util.spec_from_file_location("page", path)
@@ -222,12 +231,11 @@ def load_page(path):
 st.sidebar.markdown("""
 <div style='padding:16px 12px 8px'>
     <div style='font-size:1.05rem;font-weight:700;color:#0F172A;letter-spacing:-0.3px'>📊 MF Intelligence</div>
-    <div style='font-size:0.7rem;color:#94A3B8;margin-top:2px'>Mutual Fund Analytics · v3.3</div>
+    <div style='font-size:0.7rem;color:#94A3B8;margin-top:2px'>Mutual Fund Analytics · v3.5</div>
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<hr style='border-color:#E2E8F0;margin:4px 0 10px'>", unsafe_allow_html=True)
-
 st.sidebar.markdown("<div style='font-size:0.62rem;color:#94A3B8;letter-spacing:1.2px;font-weight:700;padding:0 4px 6px;text-transform:uppercase'>Navigation</div>", unsafe_allow_html=True)
 
 pages = {
@@ -242,23 +250,17 @@ page = st.sidebar.radio("", list(pages.keys()), label_visibility="collapsed")
 
 st.sidebar.markdown("<hr style='border-color:#E2E8F0;margin:10px 0'>", unsafe_allow_html=True)
 
-# ── Data Source ──
+# ── Data Source ──────────────────────────────────────────────────────────────
 st.sidebar.markdown("<div style='font-size:0.62rem;color:#94A3B8;letter-spacing:1.2px;font-weight:700;padding:0 4px 6px;text-transform:uppercase'>📡 Data Source</div>", unsafe_allow_html=True)
 
 FILTER_KEYS = ["filtered_df","gf_cat1","gf_cat2","gf_cat3","gf_amc","gf_plan","gf_option","gf_search"]
 
-src_mode = st.sidebar.radio("Source mode", ["🌐 GitHub URL", "📁 Upload Excel"],
-                             horizontal=True, label_visibility="collapsed", key="src_mode")
+src_mode = st.sidebar.radio(
+    "Source mode", ["🌐 GitHub URL", "📁 Upload Excel"],
+    horizontal=True, label_visibility="collapsed", key="src_mode"
+)
 
 if src_mode == "🌐 GitHub URL":
-    import toml as _toml, pathlib as _pl
-_cfg_path = _pl.Path(__file__).parent / ".streamlit" / "config.toml"
-_default_url = ""
-try:
-    _default_url = _toml.load(_cfg_path).get("custom", {}).get("default_data_url", "")
-except Exception:
-    pass
-
     gh_url = st.sidebar.text_input(
         "GitHub Raw URL",
         value=st.session_state.get("gh_url_saved", _default_url),
@@ -272,7 +274,7 @@ except Exception:
         clear_clicked = st.button("🗑️", use_container_width=True, key="clear_gh_btn")
 
     if clear_clicked:
-        for k in ["df","stale_df","data_loaded","gh_url_saved"] + FILTER_KEYS:
+        for k in ["df", "stale_df", "data_loaded", "gh_url_saved"] + FILTER_KEYS:
             st.session_state.pop(k, None)
         st.rerun()
 
@@ -305,7 +307,7 @@ else:  # Upload Excel
         clear_xl = st.button("🗑️", use_container_width=True, key="clear_xl_btn")
 
     if clear_xl:
-        for k in ["df","stale_df","data_loaded","gh_url_saved"] + FILTER_KEYS:
+        for k in ["df", "stale_df", "data_loaded", "gh_url_saved"] + FILTER_KEYS:
             st.session_state.pop(k, None)
         st.rerun()
 
@@ -325,7 +327,7 @@ else:  # Upload Excel
         else:
             st.sidebar.warning("Please upload an Excel file first")
 
-# Connection status
+# ── Connection status ─────────────────────────────────────────────────────────
 if st.session_state.get("data_loaded"):
     _df  = st.session_state["df"]
     anch = _df["latest_nav_date"].max().strftime("%d %b %Y") if "latest_nav_date" in _df.columns else "—"
@@ -371,7 +373,7 @@ if st.session_state.get("data_loaded"):
     sel_c2  = st.sidebar.multiselect("📂 Asset Class", c2_opts, key="gf_cat2", placeholder="Equity, Debt, Hybrid…")
     if sel_c2: df_f = df_f[df_f["cat_level_2"].isin(sel_c2)]
 
-    # 3 — Sub-Type (Small Cap / Mid Cap / ELSS) — the primary analytics grouping
+    # 3 — Sub-Type (Small Cap / Mid Cap / ELSS) — primary analytics grouping
     c3_opts = sorted([c for c in df_f["cat_level_3"].dropna().unique() if c not in ("NA","","Unknown")])
     sel_c3  = st.sidebar.multiselect("📁 Sub-Type", c3_opts, key="gf_cat3", placeholder="Small Cap, Mid Cap, ELSS…")
     if sel_c3: df_f = df_f[df_f["cat_level_3"].isin(sel_c3)]
@@ -387,8 +389,8 @@ if st.session_state.get("data_loaded"):
     if sel_plan: df_f = df_f[df_f["plan_type"].isin(sel_plan)]
 
     # 6 — Payout Option
-    opt_opts  = sorted([c for c in df_f["option_type"].dropna().unique() if c not in ("NA","")])
-    sel_opt   = st.sidebar.multiselect("💰 Payout Option", opt_opts, key="gf_option", placeholder="Growth / IDCW / Bonus")
+    opt_opts = sorted([c for c in df_f["option_type"].dropna().unique() if c not in ("NA","")])
+    sel_opt  = st.sidebar.multiselect("💰 Payout Option", opt_opts, key="gf_option", placeholder="Growth / IDCW / Bonus")
     if sel_opt: df_f = df_f[df_f["option_type"].isin(sel_opt)]
 
     # 7 — Scheme search
@@ -399,14 +401,14 @@ if st.session_state.get("data_loaded"):
         for k in FILTER_KEYS: st.session_state.pop(k, None)
         st.rerun()
 
-    # Summary
+    # Filter summary chip
     total_m = len(df_master); total_f = len(df_f)
     pct     = total_f / total_m * 100 if total_m > 0 else 0
     chips   = []
-    if sel_c1:  chips.append(f"Type: {','.join(sel_c1[:1])}{'…' if len(sel_c1)>1 else ''}")
-    if sel_c2:  chips.append(f"{','.join(sel_c2[:1])}{'…' if len(sel_c2)>1 else ''}")
-    if sel_c3:  chips.append(f"{','.join(sel_c3[:2])}{'…' if len(sel_c3)>2 else ''}")
-    if sel_amc: chips.append(f"{','.join(sel_amc[:1])}{'…' if len(sel_amc)>1 else ''}")
+    if sel_c1:   chips.append(f"Type: {','.join(sel_c1[:1])}{'…' if len(sel_c1)>1 else ''}")
+    if sel_c2:   chips.append(f"{','.join(sel_c2[:1])}{'…' if len(sel_c2)>1 else ''}")
+    if sel_c3:   chips.append(f"{','.join(sel_c3[:2])}{'…' if len(sel_c3)>2 else ''}")
+    if sel_amc:  chips.append(f"{','.join(sel_amc[:1])}{'…' if len(sel_amc)>1 else ''}")
     if sel_plan: chips.append(','.join(sel_plan))
     if sel_opt:  chips.append(','.join(sel_opt))
     if search:   chips.append(f'"{search}"')
@@ -426,7 +428,7 @@ if st.session_state.get("data_loaded"):
     st.session_state["filtered_df"] = df_f
 
 st.sidebar.markdown("<hr style='border-color:#E2E8F0;margin:10px 0'>", unsafe_allow_html=True)
-st.sidebar.markdown("<div style='font-size:0.62rem;color:#CBD5E1;text-align:center;padding:4px'>v3.3 · Built for Rahul 🚀</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='font-size:0.62rem;color:#CBD5E1;text-align:center;padding:4px'>v3.5 · Built for Rahul 🚀</div>", unsafe_allow_html=True)
 
 page_file = os.path.join(base, pages[page])
 load_page(page_file)
