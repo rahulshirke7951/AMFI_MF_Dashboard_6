@@ -1,2 +1,7 @@
 [ui]
 hideSidebarNav = true
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
