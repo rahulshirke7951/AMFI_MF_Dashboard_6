@@ -129,23 +129,45 @@ def show():
         st.caption("Error bars = std deviation. Diamond = median. Wider bars = more spread within sub-type.")
 
     with tab_table:
-        # Clean table: Scheme, NAV, returns + CAGR columns + consistency + peer rank
         sort_col = st.selectbox("Sort by", list(present_map.keys()), format_func=lambda x:present_map[x], key="lt_sort")
         asc      = st.checkbox("Ascending", value=False, key="lt_asc")
 
-        extra_cols = ["cagr_1y","cagr_2y","cagr_3y","consistency_score","peer_rank_1y"]
-        disp_cols  = ["scheme_name","latest_nav"] + list(present_map.keys()) + extra_cols
-        disp_cols  = [c for c in disp_cols if c in df.columns]
-        disp       = df[disp_cols].sort_values(sort_col, ascending=asc).reset_index(drop=True)
-        disp.index += 1
-        rename = {**present_map,
-                  "scheme_name":"Scheme","latest_nav":"NAV",
-                  "cagr_1y":"1Y CAGR","cagr_2y":"2Y CAGR","cagr_3y":"3Y CAGR",
-                  "consistency_score":"Consistency%","peer_rank_1y":"Peer%ile 1Y"}
-        disp = disp.rename(columns=rename)
-        ret_labels = list(present_map.values()) + ["1Y CAGR","2Y CAGR","3Y CAGR","Consistency%","Peer%ile 1Y"]
-        st.dataframe(style_returns_df(disp,[c for c in ret_labels if c in disp.columns]),
-                     use_container_width=True, height=500)
-        st.download_button("⬇️ Download CSV", df[disp_cols].to_csv(index=False), "long_term.csv","text/csv")
+        # Build display dataframe — only columns that actually exist
+        rows = df.sort_values(sort_col, ascending=asc).reset_index(drop=True)
+        rows.index += 1
 
+        out = pd.DataFrame()
+        out["Scheme"]  = rows["scheme_name"]
+        if "latest_nav" in rows.columns:
+            out["NAV"] = rows["latest_nav"]
+
+        # Return period columns
+        for col, label in present_map.items():
+            if col in rows.columns:
+                out[label] = rows[col]
+
+        # CAGR columns — compute cleanly if not already present
+        if "return_365d" in rows.columns:
+            out["1Y CAGR"] = rows["return_365d"]
+        if "return_730d" in rows.columns:
+            out["2Y CAGR"] = rows["return_730d"].apply(
+                lambda x: ((1 + x/100) ** (1/2) - 1) * 100 if pd.notna(x) else np.nan)
+        if "cagr_3y" in rows.columns:
+            out["3Y CAGR"] = rows["cagr_3y"]
+        elif "return_1095d" in rows.columns:
+            out["3Y CAGR"] = rows["return_1095d"].apply(
+                lambda x: ((1 + x/100) ** (1/3) - 1) * 100 if pd.notna(x) else np.nan)
+
+        if "consistency_score" in rows.columns:
+            out["Consistency%"] = rows["consistency_score"]
+        if "peer_rank_1y" in rows.columns:
+            out["Peer%ile 1Y"] = rows["peer_rank_1y"]
+
+        # Only colour columns that are actually numeric and present
+        colour_cols = [c for c in ["1Y","2Y","3Y","1Y CAGR","2Y CAGR","3Y CAGR",
+                                    "1M","3M","6M","1W","2W","Consistency%","Peer%ile 1Y"]
+                       if c in out.columns and pd.api.types.is_numeric_dtype(out[c])]
+
+        st.dataframe(style_returns_df(out, colour_cols), use_container_width=True, height=500)
+        st.download_button("⬇️ Download CSV", out.to_csv(index=False), "long_term.csv", "text/csv")
 show()
