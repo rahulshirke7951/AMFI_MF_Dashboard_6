@@ -259,12 +259,12 @@ try:
 except Exception:
     pass
 
-gh_url = st.sidebar.text_input(
-    "GitHub Raw URL",
-    value=st.session_state.get("gh_url_saved", _default_url),
-    placeholder="https://raw.githubusercontent.com/…/dashboard_data.xlsx",
-    label_visibility="collapsed",
-)
+    gh_url = st.sidebar.text_input(
+        "GitHub Raw URL",
+        value=st.session_state.get("gh_url_saved", _default_url),
+        placeholder="https://raw.githubusercontent.com/…/dashboard_data.xlsx",
+        label_visibility="collapsed",
+    )
     col_load, col_clear = st.sidebar.columns([3, 1])
     with col_load:
         load_clicked = st.button("🔄 Load / Refresh", use_container_width=True, key="load_gh_btn")
