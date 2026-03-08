@@ -265,11 +265,6 @@ gh_url = st.sidebar.text_input(
     placeholder="https://raw.githubusercontent.com/…/dashboard_data.xlsx",
     label_visibility="collapsed",
 )
-```
-
-**Step 3** — Add `toml` to `requirements.txt`:
-```
-toml
     col_load, col_clear = st.sidebar.columns([3, 1])
     with col_load:
         load_clicked = st.button("🔄 Load / Refresh", use_container_width=True, key="load_gh_btn")
