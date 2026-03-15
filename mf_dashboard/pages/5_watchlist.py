@@ -6,7 +6,7 @@ import json
 import requests
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from utils.filters import style_returns_df, C, PLOTLY_THEME, plot_layout
+from utils.filters import style_returns_df, C, PLOTLY_THEME, plot_layout, waterfall_returns
 import plotly.graph_objects as go
 
 ALL_RETS = {
