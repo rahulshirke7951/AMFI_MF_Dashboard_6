@@ -149,9 +149,13 @@ def show():
         # CAGR columns — compute cleanly if not already present
         if "return_365d" in rows.columns:
             out["1Y CAGR"] = rows["return_365d"]
-        if "return_730d" in rows.columns:
-            out["2Y CAGR"] = rows["return_730d"].apply(
-                lambda x: ((1 + x/100) ** (1/2) - 1) * 100 if pd.notna(x) else np.nan)
+        
+        if "cagr_2y" in rows.columns:
+           out["2Y CAGR"] = rows["cagr_2y"]
+        elif "return_730d" in rows.columns:
+           out["2Y CAGR"] = rows["return_730d"].apply(
+               lambda x: ((1 + x/100) ** (1/2) - 1) * 100 if pd.notna(x) else np.nan)
+
         if "cagr_3y" in rows.columns:
             out["3Y CAGR"] = rows["cagr_3y"]
         elif "return_1095d" in rows.columns:
