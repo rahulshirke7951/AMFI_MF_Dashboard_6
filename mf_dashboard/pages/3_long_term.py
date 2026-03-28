@@ -161,7 +161,7 @@ def show():
             out["Peer%ile 1Y"] = rows["peer_rank_1y"]
 
         # Only colour columns that are actually numeric and present
-        colour_cols = [c for c in ["1Y","2Y","3Y","1Y CAGR","2Y CAGR","3Y CAGR",
+        colour_cols = [c for c in ["1Y Return","2Y Return","3Y Return","2Y CAGR","3Y CAGR",
                                     "1M","3M","6M","1W","2W","Consistency%","Peer%ile 1Y"]
                        if c in out.columns and pd.api.types.is_numeric_dtype(out[c])]
 
