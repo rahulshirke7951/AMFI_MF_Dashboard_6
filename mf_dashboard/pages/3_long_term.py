@@ -33,6 +33,11 @@ def show():
     if len(df) < len(full):
         st.markdown(f'<div class="active-filter-bar">🎛️ Filters active — <b>{len(df):,}</b> of <b>{len(full):,}</b> schemes</div>', unsafe_allow_html=True)
 
+
+    # 2Y CAGR — derived from return_730d
+    if "cagr_2y" not in df.columns and "return_730d" in df.columns:
+        df["cagr_2y"] = df["return_730d"].apply(lambda x: compute_cagr(x, 2))
+        
     present_map = {k:v for k,v in LONG_MAP.items() if k in df.columns}
     if not present_map:
         st.error("No long-term return columns found."); return
@@ -42,9 +47,7 @@ def show():
                           "return_180d","return_365d","return_730d","return_1095d"} & set(df.columns))
     df["consistency_score"] = df.apply(lambda r: consistency_score(r, all_ret_cols), axis=1)
 
-    # 2Y CAGR — derived from return_730d
-    if "cagr_2y" not in df.columns and "return_730d" in df.columns:
-        df["cagr_2y"] = df["return_730d"].apply(lambda x: compute_cagr(x, 2))
+
     # 1Y CAGR = same as 1Y return
     if "cagr_1y" not in df.columns and "return_365d" in df.columns:
         df["cagr_1y"] = df["return_365d"].copy()
