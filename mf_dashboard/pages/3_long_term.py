@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils.filters import style_returns_df, bar_top_bottom, heatmap_category_returns, category_comparison_bar, plot_layout, get_group_col, C
 import plotly.graph_objects as go
 
-LONG_MAP = {"return_365d":"1Y","return_730d":"2Y","return_1095d":"3Y","cagr_2y":"2Y CAGR","cagr_3y":"3Y CAGR"}
+LONG_MAP = {"return_365d":"1Y Return","return_730d":"2Y Return","return_1095d":"3Y Return","cagr_2y":"2Y CAGR","cagr_3y":"3Y CAGR"}
 
 def compute_cagr(ret_pct, years):
     """Convert absolute % return to CAGR."""
