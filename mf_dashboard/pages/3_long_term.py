@@ -149,14 +149,11 @@ def show():
         if "cagr_2y" in rows.columns:
            out["2Y CAGR"] = rows["cagr_2y"]
         elif "return_730d" in rows.columns:
-           out["2Y CAGR"] = rows["return_730d"].apply(
-               lambda x: ((1 + x/100) ** (1/2) - 1) * 100 if pd.notna(x) else np.nan)
-
+            out["2Y CAGR"] = rows["return_730d"].apply(lambda x: compute_cagr(x, 2)).round(1)
         if "cagr_3y" in rows.columns:
             out["3Y CAGR"] = rows["cagr_3y"]
         elif "return_1095d" in rows.columns:
-            out["3Y CAGR"] = rows["return_1095d"].apply(
-                lambda x: ((1 + x/100) ** (1/3) - 1) * 100 if pd.notna(x) else np.nan)
+            out["3Y CAGR"] = rows["return_1095d"].apply(lambda x: compute_cagr(x, 3)).round(1)
 
         if "consistency_score" in rows.columns:
             out["Consistency%"] = rows["consistency_score"]
