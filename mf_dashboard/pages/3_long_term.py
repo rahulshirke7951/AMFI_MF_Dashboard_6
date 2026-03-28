@@ -46,12 +46,7 @@ def show():
     all_ret_cols = list({"return_7d","return_14d","return_30d","return_90d",
                           "return_180d","return_365d","return_730d","return_1095d"} & set(df.columns))
     df["consistency_score"] = df.apply(lambda r: consistency_score(r, all_ret_cols), axis=1)
-
-
-    # 1Y CAGR = same as 1Y return
-    if "cagr_1y" not in df.columns and "return_365d" in df.columns:
-        df["cagr_1y"] = df["return_365d"].copy()
-    
+   
     grp = get_group_col(df)
     
     if grp in df.columns and "return_365d" in df.columns:
