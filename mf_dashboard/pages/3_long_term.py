@@ -56,8 +56,9 @@ def show():
         # ── KPI tiles ──────────────────────────────────────────────────────────
         #display_periods = {**present_map}
         #if "cagr_2y" in df.columns: display_periods["cagr_2y"] = "2Y CAGR"
-        kpi_cols = list(display_periods.items())
-        
+        #kpi_cols = list(display_periods.items())
+        kpi_cols = list(present_map.items())
+    
     cols = st.columns(len(kpi_cols) + 1)
     for i,(col_key,label) in enumerate(kpi_cols):
         valid = df[col_key].dropna()
