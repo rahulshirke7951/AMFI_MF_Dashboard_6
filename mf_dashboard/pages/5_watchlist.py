@@ -18,6 +18,7 @@ ALL_RETS = {
     "return_365d":  "1Y",
     "return_730d":  "2Y",
     "return_1095d": "3Y",
+    "cagr_2y":      "2Y CAGR",
     "cagr_3y":      "3Y CAGR",
 }
 
@@ -61,10 +62,17 @@ def show():
 
     df   = st.session_state.get("filtered_df", st.session_state["df"])
     full = st.session_state["df"]
-    if "cagr_3y" not in df.columns and "return_1095d" in df.columns:
-        df = df.copy()
-        df["cagr_3y"] = ((1 + df["return_1095d"] / 100) ** (1/3) - 1) * 100
 
+    df = df.copy()
+    
+    # 2Y CAGR
+    if "cagr_2y" not in df.columns and "return_730d" in df.columns:
+        df["cagr_2y"] = ((1 + df["return_730d"] / 100) ** (1/2) - 1) * 100
+    
+    # 3Y CAGR
+    if "cagr_3y" not in df.columns and "return_1095d" in df.columns:
+        df["cagr_3y"] = ((1 + df["return_1095d"] / 100) ** (1/3) - 1) * 100
+    
     # ── Load Watchlists ──
     st.markdown('<div class="section-title">LOAD WATCHLIST</div>', unsafe_allow_html=True)
 
