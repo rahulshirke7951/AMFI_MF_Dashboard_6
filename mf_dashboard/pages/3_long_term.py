@@ -53,11 +53,11 @@ def show():
     if grp in df.columns and "return_365d" in df.columns:
         df["peer_rank_1y"] = df.groupby(grp)["return_365d"].rank(pct=True) * 100
 
-    # ── KPI tiles ──────────────────────────────────────────────────────────
-    display_periods = {**present_map}
-    if "cagr_2y" in df.columns: display_periods["cagr_2y"] = "2Y CAGR"
-    kpi_cols = list(present_map.items())
-
+        # ── KPI tiles ──────────────────────────────────────────────────────────
+        #display_periods = {**present_map}
+        #if "cagr_2y" in df.columns: display_periods["cagr_2y"] = "2Y CAGR"
+        kpi_cols = list(display_periods.items())
+        
     cols = st.columns(len(kpi_cols) + 1)
     for i,(col_key,label) in enumerate(kpi_cols):
         valid = df[col_key].dropna()
