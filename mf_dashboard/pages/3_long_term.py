@@ -139,13 +139,12 @@ def show():
             out["NAV"] = rows["latest_nav"]
 
         # Return period columns
+        
         for col, label in present_map.items():
             if col in rows.columns:
-                out[label] = rows[col]
-
+                out[label] = rows[col].round(1)
+        
         # CAGR columns — compute cleanly if not already present
-        if "return_365d" in rows.columns:
-            out["1Y CAGR"] = rows["return_365d"]
         
         if "cagr_2y" in rows.columns:
            out["2Y CAGR"] = rows["cagr_2y"]
