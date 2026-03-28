@@ -51,17 +51,15 @@ def show():
     # 1Y CAGR = same as 1Y return
     if "cagr_1y" not in df.columns and "return_365d" in df.columns:
         df["cagr_1y"] = df["return_365d"].copy()
-
+    
     grp = get_group_col(df)
+    
     if grp in df.columns and "return_365d" in df.columns:
         df["peer_rank_1y"] = df.groupby(grp)["return_365d"].rank(pct=True) * 100
-
-        # ── KPI tiles ──────────────────────────────────────────────────────────
-        #display_periods = {**present_map}
-        #if "cagr_2y" in df.columns: display_periods["cagr_2y"] = "2Y CAGR"
-        #kpi_cols = list(display_periods.items())
-        kpi_cols = list(present_map.items())
     
+    # ── KPI tiles ──────────────────────────────────────────────────────────
+    kpi_cols = list(present_map.items())
+  
     cols = st.columns(len(kpi_cols) + 1)
     for i,(col_key,label) in enumerate(kpi_cols):
         valid = df[col_key].dropna()
