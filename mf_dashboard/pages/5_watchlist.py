@@ -244,7 +244,7 @@ def show():
         if len(present_rets) >= 3 and len(df_wl) <= 20:
             st.markdown("#### Multi-Period Comparison")
             key_periods = {k: v for k, v in present_rets.items()
-                           if k in ["return_30d","return_180d","return_365d","cagr_3y"]}
+                           if k in ["return_30d","return_90d","return_180d","return_365d","cagr_2y","cagr_3y"]}
             if key_periods:
                 fig2 = go.Figure()
                 colors_list = [C["cyan"], C["blue"], C["green"], C["amber"]]
