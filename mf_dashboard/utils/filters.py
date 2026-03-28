@@ -54,7 +54,7 @@ def color_ret(val):
 
 
 def style_returns_df(df: pd.DataFrame, ret_cols: list):
-    fmt = {c: "{:+.2f}%" for c in ret_cols if c in df.columns}
+    fmt = {c: "{:+.1f}%" for c in ret_cols if c in df.columns}
     return (
         df.style
           .format(fmt, na_rep="—")
